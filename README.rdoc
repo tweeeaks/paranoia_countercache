@@ -1,0 +1,19 @@
+sample app to test a paranoia bug i noticed while upgrading from rails 4.0.x to 4.1.11
+
+the bug will decrease the counter_cache on really_destroy! calls, but this shouldn't happen as it will already be decreased by rails
+
+bundle install
+rake db:migrate
+rails c
+> HighScore.create(:game => "marbles", :score => 10)
+> Widget.create(:high_score_id => 1)
+> HighScore.first.widgets_count
+> 1
+> Widget.destroy(1)
+> HighScore.first.widgets_count
+> 0
+> Widget.only_deleted.find(1).really_destroy!
+> HighScore.first.widgets_count
+> -1
+
+that really_destroy! should no decrease the counter again
